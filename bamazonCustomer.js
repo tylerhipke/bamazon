@@ -38,17 +38,17 @@ connection.query("SELECT * FROM products", function (err, res) {
             message: "How many do you want?"
         }]).then(function (answer) {
             userItem = parseInt(answer.userChoice);
-            console.log(res[userItem]);
+            console.log(userItem);
             userAmt = parseInt(answer.amount);
-            itemAmt = res[userItem].stock_quantity;
+            itemAmt = res[(userItem-1)].stock_quantity;
             endAmt = itemAmt - userAmt;
             console.log(endAmt);
 
-            if ( res[userItem].stock_quantity < userAmt ) {
+            if ( res[(userItem-1)].stock_quantity < userAmt ) {
                 console.log("Not enough items in stock.");
                 connection.end();
             }else{
-                console.log("You just bought a " + res[userItem].product_name);
+                console.log("You just bought a " + res[(userItem-1)].product_name);
                 updateAmt();
             }
 
