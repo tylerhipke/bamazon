@@ -4,6 +4,7 @@ var inquirer = require("inquirer");
 var userItem;
 var userAmt;
 var itemAmt;
+var endAmt;
 
 var connection = mysql.createConnection({
     host: "localhost",
@@ -37,14 +38,17 @@ connection.query("SELECT * FROM products", function (err, res) {
             message: "How many do you want?"
         }]).then(function (answer) {
             userItem = parseInt(answer.userChoice);
+            console.log(res[userItem]);
             userAmt = parseInt(answer.amount);
+            itemAmt = res[userItem].stock_quantity;
+            endAmt = itemAmt - userAmt;
+            console.log(endAmt);
 
             if ( res[userItem].stock_quantity < userAmt ) {
                 console.log("Not enough items in stock.");
                 connection.end();
             }else{
                 console.log("You just bought a " + res[userItem].product_name);
-                connection.end();
                 updateAmt();
             }
 
@@ -53,4 +57,20 @@ connection.query("SELECT * FROM products", function (err, res) {
 
 function updateAmt() {
 
+    connection.query(
+        "UPDATE products SET ? WHERE ?",
+        [
+          {
+            stock_quantity: endAmt
+          },
+          {
+            item_id: userItem
+          }
+        ],
+        function(err, res) {
+          if (err) throw err;
+          console.log(res.affectedRows + " products updated!\n");
+          connection.end();
+        }
+      );
 }
